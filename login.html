@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+    --login-purple: #7c73ff;
+    --input-bg: #f3f4ff;
+    --text-color: #333;
+}
+
+body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #e8eaff; display: flex; align-items: center; justify-content: center; height: 100vh; }
+
+.login-container {
+    display: flex; width: 950px; height: 600px;
+    background: white; border-radius: 30px; overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+/* Left Section */
+.login-form-section { flex: 1; padding: 60px; display: flex; align-items: center; }
+.form-box { width: 100%; text-align: center; }
+h1 { font-size: 1.8rem; margin-bottom: 10px; color: #000; letter-spacing: 1px; }
+/* .subtitle { font-size: 0.9rem; color: #666; margin-bottom: 30px; } */
+
+.input-group {
+    background: var(--input-bg); display: flex; align-items: center;
+    padding: 12px 20px; border-radius: 12px; margin-bottom: 15px;
+}
+.input-group input { 
+    background: none; border: none; outline: none; width: 100%; padding-left: 10px; font-size: 0.9rem; 
+}
+
+.input-group:first-of-type {
+    margin-top: 20px; /* Adds extra breathing room above the Username field */
+}
+
+.btn-primary {
+    width: 40%; background: var(--login-purple); color: white; border: none;
+    padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600;
+    box-shadow: 0 10px 20px rgba(124, 115, 255, 0.3); margin: 10px 0;
+}
+
+.divider { margin: 25px 0; position: relative; border-top: 1px solid #eee; }
+.divider span { 
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: white; padding: 0 15px; font-size: 0.8rem; color: #999; 
+}
+
+.social-login { display: flex; flex-direction: column; gap: 10px; }
+.social-btn {
+    border: 1px solid #eee; background: white; padding: 10px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; font-size: 0.85rem; transition: 0.3s;
+}
+.social-btn img { width: 18px; }
+.social-btn:hover { background: #f9f9f9; }
+
+/* Right Section */
+.login-visual-section {
+    flex: 1; background: linear-gradient(135deg, #6366f1, #a855f7);
+    display: flex; align-items: center; justify-content: center; position: relative;
+}
+
+.glass-frame {
+    width: 280px; height: 380px; border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 40px; overflow: hidden; backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.1);
+}
+.glass-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+/* .floating-badge {
+    position: absolute; bottom: 20%; left: 15%; width: 50px; height: 50px;
+    background: white; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+} */
+
+/* Responsive */
+@media (max-width: 850px) {
+    .login-visual-section { display: none; }
+    .login-container { width: 450px; }
+}
+    </style>
+</head>
+<body>
+    <div class="login-container">
+    <div class="login-form-section">
+        <div class="form-box">
+            <h1>LOGIN</h1>
+            <!-- <p class="subtitle">How do I get started lorem ipsum dolor sit?</p> -->
+            
+            <form>
+                <div class="input-group">
+                    <span class="icon">👤</span>
+                    <input type="text" placeholder="Username">
+                </div>
+                <div class="input-group">
+                    <span class="icon">🔒</span>
+                    <input type="password" placeholder="Password">
+                </div>
+                <button type="submit" class="btn-primary">Login Now</button>
+            </form>
+
+            <div class="divider"><span>Login with Others</span></div>
+
+            <div class="social-login">
+                <button class="social-btn"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G"> Login with <b>google</b></button>
+                <button class="social-btn"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="F"> Login with <b>Facebook</b></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-visual-section">
+        <div class="glass-frame">
+            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1000" alt="Person using tablet">
+        </div>
+        <!-- <div class="floating-badge">⚡</div> -->
+    </div>
+</div>
+    <script>
+        // Toggle password visibility (the "Eye" icon logic)
+const loginBtn = document.querySelector('.btn-primary');
+
+loginBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevents page reload for demo
+    alert("Authenticating... Redirecting to Consight Dashboard.");
+    window.location.href = "side-bar.html"; // Moves to your next screen
+});
+
+// Hover effect for social buttons
+document.querySelectorAll('.social-btn').forEach(button => {
+    button.onclick = () => {
+        console.log("Connecting to API...");
+    };
+});
+    </script>
+    
+</body>
+</html>
