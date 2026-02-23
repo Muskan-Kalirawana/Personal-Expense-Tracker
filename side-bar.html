@@ -3,28 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consight Sidebar</title>
+    <title>SpendWise Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --purple: #6366f1;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --sidebar-w: 260px;
+            --sidebar-w: 240px;
             --bg-body: #f1f5f9;
+            --white: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); }
 
-        body { background: var(--bg-body); }
-
-        /* FIXED TOP BAR (Mobile) */
+        /* --- MOBILE HEADER & SIDEBAR (Your existing CSS) --- */
         .mobile-header {
             display: none; position: fixed; top: 0; width: 100%; height: 65px;
             background: white; border-bottom: 1px solid #e2e8f0;
             padding: 0 20px; align-items: center; justify-content: space-between; z-index: 1001;
         }
-
         .logo { display: flex; align-items: center; gap: 12px; }
         .logo-icon { 
             background: linear-gradient(135deg, var(--purple), #8b5cf6); 
@@ -33,95 +35,302 @@
         }
         .logo h2 { font-size: 1.3rem; color: var(--text-main); font-weight: 700; }
 
-        /* SIDEBAR */
         .sidebar {
             width: var(--sidebar-w); height: 100vh; background: white;
             position: fixed; left: 0; top: 0; display: flex; flex-direction: column;
             border-right: 1px solid #e2e8f0; z-index: 1000; transition: 0.3s;
         }
-
-        .sidebar-header { padding: 35px 24px; }
-
-        /* Navigation Groups */
-        .nav-container { flex: 1; padding: 0 16px; display: flex; flex-direction: column; }
-        
+        .sidebar-header { padding: 25px 20px; }
+        .nav-container { flex: 1; padding: 0 12px; display: flex; flex-direction: column; }
         .nav-list { list-style: none; }
         .bottom-nav { margin-top: auto; padding-bottom: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
-
         .nav-item {
-            display: flex; align-items: center; padding: 14px 16px; 
+            display: flex; align-items: center; padding: 12px 14px; 
             border-radius: 12px; cursor: pointer; color: var(--text-muted);
-            margin-bottom: 4px; transition: 0.2s ease; font-weight: 500;
+            margin-bottom: 4px; transition: 0.2s ease; font-weight: 500; font-size: 0.95rem; pointer-events: auto;
         }
-
         .nav-item:hover { background: #f8fafc; color: var(--purple); }
         .nav-item.active { background: #f5f3ff; color: var(--purple); font-weight: 600; }
-
         .nav-icon { margin-right: 14px; font-size: 1.2rem; }
+        .menu-toggle { background: none; border: none; font-size: 1.6rem; cursor: pointer; }
 
-        /* .logout { color: #ef4444 !important; } */
-        .logout:hover { background: #fef2f2 !important; }
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            margin-left: var(--sidebar-w); /* Space for sidebar */
+            padding: 40px;
+            transition: 0.3s;
+        }
 
-        .menu-toggle { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text-main); }
+        /* --- UPDATED LAYOUT LOGIC --- */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        /* This creates the 2-column layout where the right side is full height */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 2fr 1.1fr; 
+            grid-template-areas: 
+                "header activity"
+                "stats activity"
+                "chart activity";
+            gap: 24px;
+            align-items: start;
+            max-width: 1100px;
+        }
+
+        .header-area { grid-area: header; }
+        .stats-area { grid-area: stats; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 10px; }
+        /* .chart-area { grid-area: chart; height: "350px"; } */
+        /* Chart Area Layout */
+.chart-area {
+    background: var(--white);
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    height: 400px; /* Adjust based on your overall grid height */
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.chart-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Time Range Dropdown Styling */
+.chart-filter {
+    border: none;
+    background: #f1f5f9;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.2s;
+}
+
+.chart-filter:hover {
+    background: #e2e8f0;
+}
+
+/* Wrapper to maintain Chart aspect ratio */
+.chart-container {
+    height: 280px;
+    position: relative;
+}
+        
+        /* This spans the entire right side from top to bottom */
+        .activity-area { 
+            grid-area: activity; 
+            background: var(--white); 
+            padding: 24px; 
+            border-radius: 16px; 
+            border: 1px solid #e2e8f0; 
+            height: 100%; 
+            min-height: 80vh; 
+        }
+
+        .header-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .header-action h1 { font-size: 1.8rem; font-weight: 700; }
+
+        /* STAT CARDS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--white); padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .card-title { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; width: 100%; }
+        .card-amount { font-size: 1.6rem; font-weight: 700; }
+        .trend { font-size: 0.85rem; margin-top: 8px; font-weight: 600; gap: 4px; }
+        .up { color: var(--success); }
+        .down { color: var(--danger); }
+
+        /* VISUALIZATION */
+        .dashboard-row { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .chart-card { background: var(--white); padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; height: 400px; }
+        .recent-activity { background: var(--white); padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; }
+        
+        .transaction { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .trans-info p { font-weight: 600; font-size: 0.95rem; }
+        .trans-info span { font-size: 0.8rem; color: var(--text-muted); }
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .mobile-header { display: flex; }
-            .sidebar { transform: translateX(-100%); top: 65px; height: calc(100vh - 65px); }
+            .sidebar { transform: translateX(-100%); top: 65px; height: calc(100vh - 65px); width: "280px";; }
             .sidebar.active { transform: translateX(0); }
-            .sidebar-header { display: none; }
+            .main-content { margin-left: 0; display: block; padding: 85px 15px 20px 15px; }
+            .dashboard-row { grid-template-columns: 1fr; }
             .overlay.active { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 999; }
+            .sidebar .sidebar-header .logo { display: none; }
+            .dashboard-container {grid-template-columns: 1fr; grid-template-areas: "header" "stats" "chart" "activity"; gap: "20px"; }
+            .stats-area {grid-template-columns: 1fr; /* Stack cards on top of each other */ }
+            .chart-card { height: 300px; /* Slightly shorter for mobile screens */ }
+            /* 5. Handle Table Overflow */
+            .activity-area {overflow-x: auto; /* Allow horizontal scroll for the table if needed */ }
+            .activity-table { min-width: 400px; /* Ensures table doesn't look squashed */}
         }
     </style>
 </head>
 <body>
-
+    
     <div class="mobile-header">
-        <div class="logo">
-            <div class="logo-icon">S</div>
-            <h2>SpendWise</h2>
-        </div>
+        <div class="logo"><div class="logo-icon">S</div><h2>SpendWise</h2></div>
         <button class="menu-toggle" id="menuBtn">☰</button>
     </div>
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo">
-                <div class="logo-icon">S</div>
-                <h2>SpendWise</h2>
-            </div>
+            <div class="logo"><div class="logo-icon">S</div><h2>SpendWise</h2></div>
         </div>
-
         <nav class="nav-container">
             <ul class="nav-list">
-                <li class="nav-item active">
-                    <span class="nav-icon">📊</span> Dashboard
-                </li>
-                <li class="nav-item">
-                    <span class="nav-icon">➕</span> Add Expense
-                </li>
-                <li class="nav-item">
-                    <span class="nav-icon">📅</span> Calendar
-                </li>
-                <li class="nav-item">
-                    <span class="nav-icon">📈</span> Analysis
-                </li>
+                <li class="nav-item active"><span class="nav-icon">📊</span> Dashboard</li>
+                <!-- <li class="nav-item"><span class="nav-icon">➕</span> Add Expense</li> -->
+                <li class="nav-item" id="nav-calendar"><span class="nav-icon">📅</span> Calendar</li>
+                <li class="nav-item" id="nav-analysis"><span class="nav-icon">📈</span> Analysis</li>
             </ul>
-
             <ul class="nav-list bottom-nav">
-                <li class="nav-item">
-                    <span class="nav-icon">👤</span> UserName
-                </li>
-                <!-- <li class="nav-item logout">
-                    <span class="nav-icon">↪️</span> LOGOUT
-                </li> -->
+                <li class="nav-item"><span class="nav-icon">👤</span> UserName</li>
+                <li class="nav-item" id="nav-logout"><span class="nav-icon">↪️</span> Logout</li>
             </ul>
         </nav>
     </aside>
 
     <div class="overlay" id="overlay"></div>
 
+    <main class="main-content">
+        <div class="dashboard-container">
+            
+            <div class="header-area">
+                <div class="header-action">
+                    <div>
+                        <h1>Dashboard Overview</h1>
+                        <p style="color: var(--text-muted);">Monitor your financial health in real-time.</p>
+                    </div>
+                    <a href="new-transaction.html"><button style="background: var(--purple); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer;">+ New Transaction</button></a>
+                </div>
+            </div>
+
+            <div class="stats-area">
+                <div class="card">
+                    <p class="card-title">Total Balance</p>
+                    <p class="card-amount">$24,150.00</p>
+                    <p class="trend up">↑ 12%</p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Monthly Income</p>
+                    <p class="card-amount" style="color: var(--success);">+$6,200.00</p>
+                    <p class="trend up">↑ 5%</p>
+                </div>
+                <div class="card">
+                    <p class="card-title">Monthly Expenses</p>
+                    <p class="card-amount" style="color: var(--danger);">-$2,480.00</p>
+                    <p class="trend down">↓ 2%</p>
+                </div>
+            </div>
+
+            <div class="chart-area">
+    <div class="chart-header">
+        <h3 class="chart-title">Expense Analysis</h3>
+        <select id="timeRange" class="chart-filter">
+            <option>Last 7 Days</option>
+            <option>Last 30 Days</option>
+        </select>
+    </div>
+    <div class="chart-container">
+        <canvas id="financeChart"></canvas>
+    </div>
+</div>
+
+            <!-- <div class="chart-area">
+                <div class="chart-card">
+                    <h3 style="margin-bottom: 20px;">Expense Analysis</h3>
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </div> -->
+
+            <div class="activity-area">
+                <h3 style="margin-bottom: 20px;">Recent Activity</h3>
+                <div class="transaction">
+                    <div class="trans-info"><p>Apple Subscription</p><span>Entertainment • 2h ago</span></div>
+                    <p class="down" style="font-weight: 700;">-$14.99</p>
+                </div>
+                <div class="transaction">
+                    <div class="trans-info"><p>Grocery Market</p><span>Food • 5h ago</span></div>
+                    <p class="down" style="font-weight: 700;">-$64.20</p>
+                </div>
+                <div class="transaction">
+                    <div class="trans-info"><p>Salary Deposit</p><span>Work • 1 day ago</span></div>
+                    <p class="up" style="font-weight: 700;">+$3,100.00</p>
+                </div>
+                </div>
+
+        </div>
+    </main>
+
+    <!-- <main class="main-content"><div class="dashboard-container"><div class="header-area">
+        <div class="header-action">
+            <div>
+                <h1>Dashboard Overview</h1>
+                <p style="color: var(--text-muted);">Monitor your financial health in real-time.</p>
+            </div>
+            <button style="background: var(--purple); color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer;">+ New Transaction</button>
+        </div></div>
+
+        <div class="stats-grid">
+            <div class="card">
+                <p class="card-title">Total Balance</p>
+                <p class="card-amount">$24,150.00</p>
+                <p class="trend up">↑ 12% from last month</p>
+            </div> 
+            <div class="card">
+                <p class="card-title">Monthly Income</p>
+                <p class="card-amount" style="color: var(--success);">+$6,200.00</p>
+                <p class="trend up">↑ 5% increase</p>
+            </div>
+            <div class="card">
+                <p class="card-title">Monthly Expenses</p>
+                <p class="card-amount" style="color: var(--danger);">-$2,480.00</p>
+                <p class="trend down">↓ 2% decrease</p>
+            </div>
+        </div>
+
+        <div class="dashboard-row">
+            <div class="chart-card">
+                <h3 style="margin-bottom: 20px;">Expense Analysis</h3>
+                <canvas id="financeChart"></canvas>
+            </div>
+            
+            <div class="recent-activity">
+                <h3 style="margin-bottom: 20px;">Recent Activity</h3>
+                <div class="transaction">
+                    <div class="trans-info"><p>Apple Subscription</p><span>Entertainment • 2h ago</span></div>
+                    <p class="down" style="font-weight: 700;">-$14.99</p>
+                </div>
+                <div class="transaction">
+                    <div class="trans-info"><p>Grocery Market</p><span>Food • 5h ago</span></div>
+                    <p class="down" style="font-weight: 700;">-$64.20</p>
+                </div>
+                <div class="transaction">
+                    <div class="trans-info"><p>Salary Deposit</p><span>Work • 1 day ago</span></div>
+                    <p class="up" style="font-weight: 700;">+$3,100.00</p>
+                </div>
+            </div>
+        </div>
+    </main> -->
+
     <script>
+        // SIDEBAR LOGIC (Your existing script)
         const menuBtn = document.getElementById('menuBtn');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
@@ -137,32 +346,113 @@
             overlay.classList.remove('active');
         };
 
-        // Switch active state
         navItems.forEach(item => {
             item.onclick = () => {
                 navItems.forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
-                if(window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
-                }
             };
         });
-        
 
-        // Add this to your existing script
-        // const navItems = document.querySelectorAll('.nav-item');
+        // REAL-TIME CHART LOGIC (New)
 
-        // navItems.forEach(item => {
-        //     item.addEventListener('click', () => {
-        //         const pageName = item.innerText.trim();
-        //         console.log("Switching to:", pageName);
-        
-                // Example logic:
-                // if(pageName === "Add Expense") { showExpenseForm(); }
-                // if(pageName === "Analysis") { loadPowerBI(); }
-        //    });
-        //});
+        const ctx = document.getElementById('financeChart').getContext('2d');
+
+// Create a gradient: Top (Purple) to Bottom (Transparent)
+const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)');
+gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Feb 01', 'Feb 05', 'Feb 10', 'Feb 15', 'Feb 20', 'Feb 23'],
+        datasets: [{
+            label: 'Spent',
+            data: [450, 800, 550, 1100, 850, 1400],
+            borderColor: '#6366f1',
+            borderWidth: 3,
+            backgroundColor: gradient, // Use the gradient we created
+            fill: true,
+            tension: 0.4, // This creates the smooth "wave" look
+            pointBackgroundColor: '#6366f1',
+            pointRadius: 0, // Hides points until hover
+            pointHoverRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false } // Hide the box at the top
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: '#f1f5f9', drawBorder: false },
+                ticks: { callback: value => '$' + value }
+            },
+            x: {
+                grid: { display: false }
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index',
+        }
+    }
+});
+
+        // const ctx = document.getElementById('financeChart').getContext('2d');
+        // new Chart(ctx, {
+        //     type: 'line',
+        //     data: {
+        //         labels: ['Feb 01', 'Feb 05', 'Feb 10', 'Feb 15', 'Feb 20', 'Feb 23'],
+        //         datasets: [{
+        //             label: 'Expenses',
+        //             data: [400, 800, 600, 1200, 900, 2480],
+        //             borderColor: '#6366f1',
+        //             backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        //             fill: true,
+        //             tension: 0.4
+        //         }]
+        //     },
+            // options: {
+            //     responsive: true,
+            //     maintainAspectRatio: false,
+            //     scales: {
+            //         y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+            //         x: { grid: { display: false } }
+            //     }
+            // }
+       // });
+
+       document.addEventListener('DOMContentLoaded', () => {
+
+    // 2. Calendar Link
+    const calendarBtn = document.getElementById('nav-calendar');
+    if (calendarBtn) {
+        calendarBtn.addEventListener('click', () => {
+            console.log("Navigating to Calendar...");
+            window.location.href = 'calender.html';
+        });
+    }
+
+    // 3. Analysis Link
+    const analysisBtn = document.getElementById('nav-analysis');
+    if (analysisBtn) {
+        analysisBtn.addEventListener('click', () => {
+            window.location.href = 'analysis.html';
+        });
+    }
+
+    // 4. Logout Link
+    const logoutBtn = document.getElementById('nav-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            window.location.href = 'landing-page.html';
+        });
+    }
+});
     </script>
 </body>
 </html>
