@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Analysis | SpendWise</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --purple: #6366f1;
+            --blue-accent: #3b82f6;
+            --bg-light: #f1f5f9;
+            --white: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            background-color: #eef2f6;
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            margin: 0;
+            /* display: flex;
+            justify-content: center; */
+            align-items: center;
+            height: 100vh;
+            overflow-y: auto; /* Crucial for responsiveness on small screens */
+            /* overflow: hidden; Desktop fit to prevent scrolling */
+        }
+
+        .analysis-wrapper {
+            width: 90%;
+            max-width: 1100px;
+            background: transparent;
+            margin: 0 auto; /* Centers the content */
+        }
+
+        /* Top Navigation */
+        .back-link {
+            color: var(--purple);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-direction: column; /* Stacked by default for mobile */
+        }
+
+        .header-section h1 {
+            margin: 0;
+            /* font-size: 28px; */
+            color: var(--text-dark);
+            font-size: 24px; /* Slightly smaller for mobile */
+        }
+
+        .header-section p {
+            margin: 5px 0 0;
+            color: var(--text-muted);
+        }
+
+        /* Toggle Buttons */
+        .toggle-container {
+            background: var(--white);
+            padding: 5px;
+            border-radius: 30px;
+            display: flex;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .toggle-btn {
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--purple);
+            color: white;
+        }
+
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            /* grid-template-columns: 1.4fr 1fr; */
+            gap: 25px;
+            grid-template-columns: 1fr; /* 1 column for mobile phones */
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 32px;
+            /* padding: 35px; */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+            border: 2px solid #dbeafe; /* Light blue border matching your reference */
+            padding: 25px; /* Reduced padding for mobile */
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 18px;
+            color: var(--text-dark);
+        }
+
+        /* Donut Chart Styling */
+        .chart-container {
+            position: relative;
+            /* height: 320px; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 280px; /* Shorter chart for mobile */
+        }
+
+        .chart-center-label {
+            position: absolute;
+            text-align: center;
+        }
+
+        .chart-center-label .amount {
+            display: block;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        /* Progress List Styling */
+        .breakdown-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .category-row {
+            margin-bottom: 5px;
+        }
+
+        .category-info {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .progress-track {
+            height: 10px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.8s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        }
+
+        /* DESKTOP STYLES: 768px and wider */
+        @media (min-width: 768px) {
+    .header-section {
+        flex-direction: row; /* Horizontal layout for desktop */
+        justify-content: space-between;
+    }
+
+    .content-grid {
+        grid-template-columns: 1.4fr 1fr; /* Two-column layout */
+    }
+
+    .chart-container {
+        height: 350px; /* Larger chart for desktop */
+    }
+
+    .card {
+        padding: 35px;
+    }
+}
+    </style>
+</head>
+<body>
+
+<div class="analysis-wrapper">
+    <a href="side-bar.html" class="back-link">← Back to Dashboard</a>
+    
+    <header class="header-section">
+        <div>
+            <h1>Financial Analysis</h1>
+            <p>Deep dive into your spending habits.</p>
+        </div>
+        <div class="toggle-container">
+            <button class="toggle-btn" id="incomeBtn">Income</button>
+            <button class="toggle-btn active" id="expenseBtn">Expense</button>
+        </div>
+    </header>
+
+    <main class="content-grid">
+        <div class="card">
+            <h3 id="main-title">Monthly Expenses</h3>
+            <div class="chart-container">
+                <canvas id="analysisDonut"></canvas>
+                <div class="chart-center-label">
+                    <span class="amount" id="total-amount">$2,480</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Spending Breakdown</h3>
+            <div class="breakdown-list" id="breakdownList">
+                </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const ctx = document.getElementById('analysisDonut').getContext('2d');
+    let currentChart;
+
+    const dataStore = {
+        expense: {
+            title: "Monthly Expenses",
+            total: "$2,480",
+            labels: ['Rent & Housing', 'Food & Dining', 'Transport', 'Entertainment'],
+            values: [35, 20, 20, 10],
+            colors: ['#a5b4fc', '#818cf8', '#6366f1', '#fbbf24'] // Shades of purple/yellow
+        },
+        income: {
+            title: "Monthly Income",
+            total: "$6,200",
+            labels: ['Salary', 'Freelance', 'Investments', 'Other'],
+            values: [60, 20, 15, 5],
+            colors: ['#6366f1', '#4ade80', '#2dd4bf', '#94a3b8']
+        }
+    };
+
+    function updatePage(type) {
+        const data = dataStore[type];
+        
+        // Update Titles and Text
+        document.getElementById('main-title').innerText = data.title;
+        document.getElementById('total-amount').innerText = data.total;
+
+        // Render the Progress Bars in the list
+        const listContainer = document.getElementById('breakdownList');
+        listContainer.innerHTML = data.labels.map((label, i) => `
+            <div class="category-row">
+                <div class="category-info">
+                    <span>${label}</span>
+                    <span>${data.values[i]}%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: ${data.values[i]}%; background-color: ${data.colors[i]}"></div>
+                </div>
+            </div>
+        `).join('');
+
+        // Destroy old chart before creating a new one to prevent overlap
+        if (currentChart) {
+            currentChart.destroy();
+        }
+
+        // Create the Donut Chart
+        currentChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    data: data.values,
+                    backgroundColor: data.colors,
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '82%', // This makes the "ring" thin exactly like the image
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                }
+            }
+        });
+    }
+
+    // Toggle Button Functionality
+    const incomeBtn = document.getElementById('incomeBtn');
+    const expenseBtn = document.getElementById('expenseBtn');
+
+    incomeBtn.addEventListener('click', () => {
+        incomeBtn.classList.add('active');
+        expenseBtn.classList.remove('active');
+        updatePage('income');
+    });
+
+    expenseBtn.addEventListener('click', () => {
+        expenseBtn.classList.add('active');
+        incomeBtn.classList.remove('active');
+        updatePage('expense');
+    });
+
+    // Initial Render
+    updatePage('expense');
+</script>
+
+</body>
+</html>
