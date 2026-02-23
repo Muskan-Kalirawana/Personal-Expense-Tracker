@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consight Sidebar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --purple: #6366f1;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --sidebar-w: 260px;
+            --bg-body: #f1f5f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body { background: var(--bg-body); }
+
+        /* FIXED TOP BAR (Mobile) */
+        .mobile-header {
+            display: none; position: fixed; top: 0; width: 100%; height: 65px;
+            background: white; border-bottom: 1px solid #e2e8f0;
+            padding: 0 20px; align-items: center; justify-content: space-between; z-index: 1001;
+        }
+
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { 
+            background: linear-gradient(135deg, var(--purple), #8b5cf6); 
+            color: white; width: 32px; height: 32px; border-radius: 8px; 
+            display: flex; align-items: center; justify-content: center; font-weight: bold; 
+        }
+        .logo h2 { font-size: 1.3rem; color: var(--text-main); font-weight: 700; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w); height: 100vh; background: white;
+            position: fixed; left: 0; top: 0; display: flex; flex-direction: column;
+            border-right: 1px solid #e2e8f0; z-index: 1000; transition: 0.3s;
+        }
+
+        .sidebar-header { padding: 35px 24px; }
+
+        /* Navigation Groups */
+        .nav-container { flex: 1; padding: 0 16px; display: flex; flex-direction: column; }
+        
+        .nav-list { list-style: none; }
+        .bottom-nav { margin-top: auto; padding-bottom: 30px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+
+        .nav-item {
+            display: flex; align-items: center; padding: 14px 16px; 
+            border-radius: 12px; cursor: pointer; color: var(--text-muted);
+            margin-bottom: 4px; transition: 0.2s ease; font-weight: 500;
+        }
+
+        .nav-item:hover { background: #f8fafc; color: var(--purple); }
+        .nav-item.active { background: #f5f3ff; color: var(--purple); font-weight: 600; }
+
+        .nav-icon { margin-right: 14px; font-size: 1.2rem; }
+
+        /* .logout { color: #ef4444 !important; } */
+        .logout:hover { background: #fef2f2 !important; }
+
+        .menu-toggle { background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text-main); }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .mobile-header { display: flex; }
+            .sidebar { transform: translateX(-100%); top: 65px; height: calc(100vh - 65px); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-header { display: none; }
+            .overlay.active { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 999; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-header">
+        <div class="logo">
+            <div class="logo-icon">S</div>
+            <h2>SpendWise</h2>
+        </div>
+        <button class="menu-toggle" id="menuBtn">☰</button>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">S</div>
+                <h2>SpendWise</h2>
+            </div>
+        </div>
+
+        <nav class="nav-container">
+            <ul class="nav-list">
+                <li class="nav-item active">
+                    <span class="nav-icon">📊</span> Dashboard
+                </li>
+                <li class="nav-item">
+                    <span class="nav-icon">➕</span> Add Expense
+                </li>
+                <li class="nav-item">
+                    <span class="nav-icon">📅</span> Calendar
+                </li>
+                <li class="nav-item">
+                    <span class="nav-icon">📈</span> Analysis
+                </li>
+            </ul>
+
+            <ul class="nav-list bottom-nav">
+                <li class="nav-item">
+                    <span class="nav-icon">👤</span> UserName
+                </li>
+                <!-- <li class="nav-item logout">
+                    <span class="nav-icon">↪️</span> LOGOUT
+                </li> -->
+            </ul>
+        </nav>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <script>
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        menuBtn.onclick = () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        };
+
+        overlay.onclick = () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+
+        // Switch active state
+        navItems.forEach(item => {
+            item.onclick = () => {
+                navItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                if(window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            };
+        });
+        
+
+        // Add this to your existing script
+        // const navItems = document.querySelectorAll('.nav-item');
+
+        // navItems.forEach(item => {
+        //     item.addEventListener('click', () => {
+        //         const pageName = item.innerText.trim();
+        //         console.log("Switching to:", pageName);
+        
+                // Example logic:
+                // if(pageName === "Add Expense") { showExpenseForm(); }
+                // if(pageName === "Analysis") { loadPowerBI(); }
+        //    });
+        //});
+    </script>
+</body>
+</html>
