@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar | SpendWise</title>
+    <style>
+        .calendar-page {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 40px;
+    height: calc(100vh - 40px); /* Keeps it within the viewport */
+    display: flex;
+    flex-direction: column;
+    
+}
+
+/* Top Navigation */
+        .back-link {
+            text-decoration: none;
+            color: var(--purple);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: gap 0.2s;
+        }
+
+/* Heatmap Grid Layout */
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-top: 15px;
+    flex-grow: 1; /* Allows the grid to fill available space */
+}
+
+.day-label {
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.calendar-day {
+    aspect-ratio: 1.2 / 1;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.calendar-day:hover {
+    transform: scale(1.05);
+}
+
+/* Heatmap Intensity Colors (SpendWise Purple) */
+.level-0 { background-color: #f1f5f9; color: #64748b; } /* Low */
+.level-1 { background-color: #e0e7ff; color: #6366f1; } 
+.level-2 { background-color: #818cf8; color: white; } 
+.level-3 { background-color: #6366f1; color: white; } /* High */
+
+/* Legend styling */
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+    justify-content: flex-end;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.legend-box {
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+}
+
+.highlight-card {
+    border: 2px solid var(--purple);
+    background: #f5f3ff;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+    </style>
+<body>
+    <div class="calendar-page">
+        <header class="form-header">
+            <a href="side-bar.html" class="back-link">← Back to Dashboard</a>
+            <h1>Spending Calendar</h1>
+            <!-- <p class="text-muted">Visualize your spending frequency throughout the month.</p> -->
+        </header>
+
+        <!-- <div class="stats-area">
+            <div class="card highlight-card">
+                <p class="card-label">Busiest Week</p>
+                <h3>Week 3: Busiest</h3>
+                <p class="text-muted">₹4,200 spent</p>
+            </div>
+            <div class="card">
+                <p class="card-label">Daily Average</p>
+                <h3>₹850.00</h3>
+                <p class="trend up">↑ 2%</p>
+            </div>
+        </div> -->
+
+        <div class="chart-area calendar-container">
+            <div class="calendar-header">
+                <h3>February 2026</h3>
+                <div class="calendar-nav">
+                    <button class="btn-icon">＜</button>
+                    <button class="btn-icon">＞</button>
+                </div>
+            </div>
+            
+            <div class="heatmap-grid" id="calendarGrid">
+                <div class="day-label">Mon</div><div class="day-label">Tue</div>
+                <div class="day-label">Wed</div><div class="day-label">Thu</div>
+                <div class="day-label">Fri</div><div class="day-label">Sat</div>
+                <div class="day-label">Sun</div>
+                
+                </div>
+
+            <div class="heatmap-legend">
+                <span>Less Spent</span>
+                <div class="legend-box level-0"></div>
+                <div class="legend-box level-1"></div>
+                <div class="legend-box level-2"></div>
+                <div class="legend-box level-3"></div>
+                <span>More Spent</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple logic to generate heatmap squares
+        const grid = document.getElementById('calendarGrid');
+        for (let i = 1; i <= 28; i++) {
+            const day = document.createElement('div');
+            day.className = `calendar-day level-${Math.floor(Math.random() * 4)}`;
+            day.innerHTML = `<span>${i}</span>`;
+            grid.appendChild(day);
+        }
+    </script>
+</body>
+</html>
